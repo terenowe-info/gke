@@ -184,7 +184,7 @@ module "gke_cluster" {
     }
   ]
 
-  logging_enabled_components           = []
+  logging_enabled_components           = ["SYSTEM"]
   monitoring_enabled_components        = []
   monitoring_service                   = null
   monitoring_enable_managed_prometheus = false

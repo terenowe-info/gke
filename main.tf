@@ -69,25 +69,72 @@ module "cloud_nat" {
   router = module.cloud_router.router.name
 }
 
-module "bastion_ip" {
-  source  = "terraform-google-modules/address/google"
-  version = "~> 3.2"
-
-  names      = [local.bastion_name]
-  project_id = var.project_id
-  region     = var.region
-
-  global       = false
-  address_type = "EXTERNAL"
-}
-
-module "bastion_sa" {
-  source  = "terraform-google-modules/service-accounts/google"
-  version = "~> 4.2.2"
-
-  names      = [local.bastion_name]
-  project_id = var.project_id
-}
+#module "bastion_ip" {
+#  source  = "terraform-google-modules/address/google"
+#  version = "~> 3.2"
+#
+#  names      = [local.bastion_name]
+#  project_id = var.project_id
+#  region     = var.region
+#
+#  global       = false
+#  address_type = "EXTERNAL"
+#}
+#
+#module "bastion_sa" {
+#  source  = "terraform-google-modules/service-accounts/google"
+#  version = "~> 4.2.2"
+#
+#  names      = [local.bastion_name]
+#  project_id = var.project_id
+#}
+#
+#module "bastion_instance_template" {
+#  source  = "terraform-google-modules/vm/google//modules/instance_template"
+#  version = "~> 10.1.1"
+#
+#  name_prefix = local.bastion_name
+#  project_id  = var.project_id
+#  region      = var.region
+#
+#  machine_type         = "e2-standard-2"
+#  disk_size_gb         = "32"
+#  disk_type            = "pd-ssd"
+#  source_image_project = "ubuntu-os-cloud"
+#  source_image         = "ubuntu-2204-lts"
+#  subnetwork           = module.network.subnets["${var.region}/bastion"].self_link
+#  tags                 = [local.bastion_tag, local.tag_all]
+#  metadata             = {
+#    ssh-keys = var.terraform_user_ssh_pub_key
+#  }
+#  service_account = {
+#    email  = module.bastion_sa.email
+#    scopes = [
+#      "https://www.googleapis.com/auth/compute"
+#    ]
+#  }
+#}
+#
+#module "bastion_compute_instance" {
+#  source  = "terraform-google-modules/vm/google//modules/compute_instance"
+#  version = "~> 10.1.1"
+#
+#  hostname = local.bastion_name
+#  region   = var.region
+#  zone     = "${var.region}-a"
+#
+#  instance_template   = module.bastion_instance_template.self_link
+#  subnetwork          = module.network.subnets["${var.region}/bastion"].self_link
+#  num_instances       = 1
+#  deletion_protection = false
+#
+#  access_config = [
+#    {
+#      nat_ip       = module.bastion_ip.addresses[0]
+#      network_tier = "PREMIUM"
+#    },
+#  ]
+#}
 
 module "gke_cluster_sa" {
   source  = "terraform-google-modules/service-accounts/google"
@@ -95,53 +142,6 @@ module "gke_cluster_sa" {
 
   names      = [local.gke_cluster_name]
   project_id = var.project_id
-}
-
-module "bastion_instance_template" {
-  source  = "terraform-google-modules/vm/google//modules/instance_template"
-  version = "~> 10.1.1"
-
-  name_prefix = local.bastion_name
-  project_id  = var.project_id
-  region      = var.region
-
-  machine_type         = "e2-standard-2"
-  disk_size_gb         = "32"
-  disk_type            = "pd-ssd"
-  source_image_project = "ubuntu-os-cloud"
-  source_image         = "ubuntu-2204-lts"
-  subnetwork           = module.network.subnets["${var.region}/bastion"].self_link
-  tags                 = [local.bastion_tag, local.tag_all]
-  metadata             = {
-    ssh-keys = var.terraform_user_ssh_pub_key
-  }
-  service_account = {
-    email  = module.bastion_sa.email
-    scopes = [
-      "https://www.googleapis.com/auth/compute"
-    ]
-  }
-}
-
-module "bastion_compute_instance" {
-  source  = "terraform-google-modules/vm/google//modules/compute_instance"
-  version = "~> 10.1.1"
-
-  hostname = local.bastion_name
-  region   = var.region
-  zone     = "${var.region}-a"
-
-  instance_template   = module.bastion_instance_template.self_link
-  subnetwork          = module.network.subnets["${var.region}/bastion"].self_link
-  num_instances       = 1
-  deletion_protection = false
-
-  access_config = [
-    {
-      nat_ip       = module.bastion_ip.addresses[0]
-      network_tier = "PREMIUM"
-    },
-  ]
 }
 
 module "gke_cluster" {
@@ -174,10 +174,10 @@ module "gke_cluster" {
       cidr_block   = var.remote_access_cidr
       display_name = "ActiveAddress"
     },
-    {
-      cidr_block   = "${module.bastion_ip.addresses[0]}/32"
-      display_name = "BastionExternal"
-    },
+    #    {
+    #      cidr_block   = "${module.bastion_ip.addresses[0]}/32"
+    #      display_name = "BastionExternal"
+    #    },
     {
       cidr_block   = module.network.subnets["${var.region}/gke-cluster"].ip_cidr_range
       display_name = "BastionInternal"
@@ -190,16 +190,36 @@ module "gke_cluster" {
   monitoring_enable_managed_prometheus = false
 
   node_pools = [
+    #    {
+    #      name               = "generic"
+    #      machine_type       = "e2-highcpu-2"
+    #      node_locations     = "${var.region}-a"
+    #      initial_node_count = 0
+    #      min_count          = 0
+    #      max_count          = 0
+    #      local_ssd_count    = 0
+    #      spot               = false
+    #      preemptible        = false
+    #      disk_type          = "pd-ssd"
+    #      disk_size_gb       = 32
+    #      image_type         = "COS_CONTAINERD"
+    #      enable_gcfs        = false
+    #      enable_gvnic       = false
+    #      logging_variant    = "DEFAULT"
+    #      auto_repair        = true
+    #      auto_upgrade       = true
+    #      service_account    = module.gke_cluster_sa.email
+    #    },
     {
-      name               = "generic"
-      machine_type       = "e2-highcpu-2"
-      node_locations     = "${var.region}-a,${var.region}-b,${var.region}-c"
+      name               = "spot"
+      machine_type       = "n2d-highcpu-2"
+      node_locations     = "${var.region}-a"
       initial_node_count = 1
       min_count          = 1
-      max_count          = 3
+      max_count          = 1
       local_ssd_count    = 0
       spot               = false
-      preemptible        = false
+      preemptible        = true
       disk_type          = "pd-ssd"
       disk_size_gb       = 32
       image_type         = "COS_CONTAINERD"
@@ -209,7 +229,7 @@ module "gke_cluster" {
       auto_repair        = true
       auto_upgrade       = true
       service_account    = module.gke_cluster_sa.email
-    },
+    }
   ]
 
   node_pools_oauth_scopes = {
@@ -222,28 +242,36 @@ module "gke_cluster" {
   node_pools_labels = {
     all     = {}
     generic = {}
+    spot    = {}
   }
 
   node_pools_resource_labels = {
     all     = {}
     generic = {}
+    spot    = {}
   }
 
   node_pools_metadata = {
     all     = {}
     generic = {}
+    spot    = {}
   }
 
   node_pools_taints = {
     all     = []
     generic = []
+    spot    = []
   }
 
   node_pools_tags = {
     all     = []
     generic = [
       local.tag_all,
-      local.gke_cluster_tag
+      local.gke_pool_generic_tag
+    ]
+    spot = [
+      local.tag_all,
+      local.gke_pool_spot_tag
     ]
   }
 }

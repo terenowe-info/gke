@@ -1,4 +1,4 @@
-# Terraform GCP GKE
+# Terraform GCP GKE via Modules
 
 ```bash
 terraform apply \

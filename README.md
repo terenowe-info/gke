@@ -1,12 +1,5 @@
-# terraform-gke-production
-
-## Setup `kubectl`
+# Terraform GCP GKE
 
 ```bash
-gcloud projects list
-gcloud config set project
-
-gcloud container clusters list
-gcloud container clusters get-credentials --region
+terraform apply -var "remote_access_cidr=213.156.101.212/32"
 ```
-

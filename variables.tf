@@ -1,12 +1,13 @@
 # Initialize
 variable "project_id" {
   type    = string
-  default = "seemscloud"
+  # default = "seemscloud"
+  default = "core-337701"
 }
 
 variable "project_name" {
   type    = string
-  default = "seemscloud"
+  default = "core-337701"
 }
 
 variable "region" {
@@ -45,5 +46,4 @@ variable "env_name" {
 
 variable "remote_access_cidr" {
   type    = string
-  default = "213.156.101.212/32"
 }

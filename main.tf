@@ -184,10 +184,14 @@ module "gke_cluster" {
     }
   ]
 
-  logging_enabled_components           = ["SYSTEM"]
+  logging_enabled_components           = []
   monitoring_enabled_components        = []
-  monitoring_service                   = null
   monitoring_enable_managed_prometheus = false
+
+  monitoring_service = "none"
+  #monitoring_service = "monitoring.googleapis.com/kubernetes"
+  logging_service    = "none"
+  #logging_service    = "logging.googleapis.com/kubernetes"
 
   node_pools = [
     #    {

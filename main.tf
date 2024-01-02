@@ -218,9 +218,9 @@ module "gke_cluster" {
       name               = "spot"
       machine_type       = "n2d-highcpu-2"
       node_locations     = "${var.region}-a"
-      initial_node_count = 1
-      min_count          = 1
-      max_count          = 1
+      initial_node_count = 2
+      min_count          = 2
+      max_count          = 2
       local_ssd_count    = 0
       spot               = false
       preemptible        = true

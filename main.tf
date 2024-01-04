@@ -174,10 +174,6 @@ module "gke_cluster" {
       cidr_block   = var.remote_access_cidr
       display_name = "ActiveAddress"
     },
-    #    {
-    #      cidr_block   = "${module.bastion_ip.addresses[0]}/32"
-    #      display_name = "BastionExternal"
-    #    },
     {
       cidr_block   = module.network.subnets["${var.region}/gke-cluster"].ip_cidr_range
       display_name = "BastionInternal"
@@ -189,34 +185,12 @@ module "gke_cluster" {
   monitoring_enable_managed_prometheus = false
 
   monitoring_service = "none"
-  #monitoring_service = "monitoring.googleapis.com/kubernetes"
-  logging_service    = "none"
-  #logging_service    = "logging.googleapis.com/kubernetes"
+  #logging_service    = "none"
 
   node_pools = [
-    #    {
-    #      name               = "generic"
-    #      machine_type       = "e2-highcpu-2"
-    #      node_locations     = "${var.region}-a"
-    #      initial_node_count = 0
-    #      min_count          = 0
-    #      max_count          = 0
-    #      local_ssd_count    = 0
-    #      spot               = false
-    #      preemptible        = false
-    #      disk_type          = "pd-ssd"
-    #      disk_size_gb       = 32
-    #      image_type         = "COS_CONTAINERD"
-    #      enable_gcfs        = false
-    #      enable_gvnic       = false
-    #      logging_variant    = "DEFAULT"
-    #      auto_repair        = true
-    #      auto_upgrade       = true
-    #      service_account    = module.gke_cluster_sa.email
-    #    },
     {
       name               = "spot"
-      machine_type       = "n2d-highcpu-2"
+      machine_type       = "e2-standard-4"
       node_locations     = "${var.region}-a"
       initial_node_count = 2
       min_count          = 2

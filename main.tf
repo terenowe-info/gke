@@ -7,11 +7,11 @@ module "network" {
   routing_mode = "GLOBAL"
 
   subnets = [
-#    {
-#      subnet_name   = "bastion"
-#      subnet_ip     = "10.255.255.0/29"
-#      subnet_region = var.region
-#    },
+    #    {
+    #      subnet_name   = "bastion"
+    #      subnet_ip     = "10.255.255.0/29"
+    #      subnet_region = var.region
+    #    },
     {
       subnet_name   = "gke-cluster"
       subnet_ip     = "10.100.255.0/24"
@@ -182,13 +182,16 @@ module "gke_cluster" {
 
   monitoring_enable_managed_prometheus = false
 
-  # Disable Monitoring
-  monitoring_service = "none"
-  #monitoring_enabled_components        = []
+  #monitoring_service = "none"
+  monitoring_enabled_components = [
+    "SYSTEM_COMPONENTS", "APISERVER", "SCHEDULER", "CONTROLLER_MANAGER",
+    "STORAGE", "HPA", "POD", "DAEMONSET", "DEPLOYMENT", "STATEFULSET"
+  ]
 
-  # Disable Logging
   #logging_service    = "none"
-  logging_enabled_components = ["SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "WORKLOADS"]
+  logging_enabled_components = [
+    "SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "WORKLOADS"
+  ]
 
   node_pools = [
     {

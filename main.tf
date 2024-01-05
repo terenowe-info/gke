@@ -179,7 +179,7 @@ module "gke_cluster" {
     #      display_name = "BastionInternal"
     #    }
   ]
-  
+
   #monitoring_service = "none"
   monitoring_enable_managed_prometheus = true
   monitoring_enabled_components        = [

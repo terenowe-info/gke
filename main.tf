@@ -183,16 +183,16 @@ module "gke_cluster" {
   monitoring_enable_managed_prometheus = false
 
   #monitoring_service = "none"
-  monitoring_enabled_components = [
-    "SYSTEM_COMPONENTS", "APISERVER", "SCHEDULER", "CONTROLLER_MANAGER",
-    "STORAGE", "HPA", "POD", "DAEMONSET", "DEPLOYMENT", "STATEFULSET"
-  ]
+  #monitoring_enabled_components = [
+  #  "SYSTEM_COMPONENTS", "APISERVER", "SCHEDULER", "CONTROLLER_MANAGER",
+  #  "STORAGE", "HPA", "POD", "DAEMONSET", "DEPLOYMENT", "STATEFULSET"
+  #]
 
   #logging_service    = "none"
   logging_enabled_components = [
     "SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "WORKLOADS"
   ]
-
+git co
   node_pools = [
     {
       name               = "spot"

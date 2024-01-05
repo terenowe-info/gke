@@ -180,12 +180,15 @@ module "gke_cluster" {
     }
   ]
 
-  logging_enabled_components           = []
-  monitoring_enabled_components        = []
   monitoring_enable_managed_prometheus = false
 
+  # Disable Monitoring
   monitoring_service = "none"
+  #monitoring_enabled_components        = []
+
+  # Disable Logging
   #logging_service    = "none"
+  logging_enabled_components = ["SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "WORKLOADS"]
 
   node_pools = [
     {

@@ -7,11 +7,11 @@ module "network" {
   routing_mode = "GLOBAL"
 
   subnets = [
-    {
-      subnet_name   = "bastion"
-      subnet_ip     = "10.255.255.0/29"
-      subnet_region = var.region
-    },
+#    {
+#      subnet_name   = "bastion"
+#      subnet_ip     = "10.255.255.0/29"
+#      subnet_region = var.region
+#    },
     {
       subnet_name   = "gke-cluster"
       subnet_ip     = "10.100.255.0/24"
@@ -174,10 +174,10 @@ module "gke_cluster" {
       cidr_block   = var.remote_access_cidr
       display_name = "ActiveAddress"
     },
-    {
-      cidr_block   = module.network.subnets["${var.region}/gke-cluster"].ip_cidr_range
-      display_name = "BastionInternal"
-    }
+    #    {
+    #      cidr_block   = module.network.subnets["${var.region}/gke-cluster"].ip_cidr_range
+    #      display_name = "BastionInternal"
+    #    }
   ]
 
   monitoring_enable_managed_prometheus = false

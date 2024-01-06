@@ -7,11 +7,11 @@ module "network" {
   routing_mode = "GLOBAL"
 
   subnets = [
-    #    {
-    #      subnet_name   = "bastion"
-    #      subnet_ip     = "10.255.255.0/29"
-    #      subnet_region = var.region
-    #    },
+    {
+      subnet_name   = "openvpn"
+      subnet_ip     = "10.255.255.0/29"
+      subnet_region = var.region
+    },
     {
       subnet_name   = "gke-cluster"
       subnet_ip     = "10.100.255.0/24"
@@ -34,9 +34,9 @@ module "network" {
 
   ingress_rules = [
     {
-      name          = "${local.base_name}-internet-to-bastion-via-ssh"
+      name          = "${local.base_name}-internet-to-openvpn-via-ssh"
       source_ranges = ["0.0.0.0/0"]
-      target_tags   = [local.bastion_tag]
+      target_tags   = [local.openvpn_tag]
       allow         = [
         {
           protocol = "TCP"
@@ -69,72 +69,72 @@ module "cloud_nat" {
   router = module.cloud_router.router.name
 }
 
-#module "bastion_ip" {
-#  source  = "terraform-google-modules/address/google"
-#  version = "~> 3.2"
-#
-#  names      = [local.bastion_name]
-#  project_id = var.project_id
-#  region     = var.region
-#
-#  global       = false
-#  address_type = "EXTERNAL"
-#}
-#
-#module "bastion_sa" {
-#  source  = "terraform-google-modules/service-accounts/google"
-#  version = "~> 4.2.2"
-#
-#  names      = [local.bastion_name]
-#  project_id = var.project_id
-#}
-#
-#module "bastion_instance_template" {
-#  source  = "terraform-google-modules/vm/google//modules/instance_template"
-#  version = "~> 10.1.1"
-#
-#  name_prefix = local.bastion_name
-#  project_id  = var.project_id
-#  region      = var.region
-#
-#  machine_type         = "e2-standard-2"
-#  disk_size_gb         = "32"
-#  disk_type            = "pd-ssd"
-#  source_image_project = "ubuntu-os-cloud"
-#  source_image         = "ubuntu-2204-lts"
-#  subnetwork           = module.network.subnets["${var.region}/bastion"].self_link
-#  tags                 = [local.bastion_tag, local.tag_all]
-#  metadata             = {
-#    ssh-keys = var.terraform_user_ssh_pub_key
-#  }
-#  service_account = {
-#    email  = module.bastion_sa.email
-#    scopes = [
-#      "https://www.googleapis.com/auth/compute"
-#    ]
-#  }
-#}
-#
-#module "bastion_compute_instance" {
-#  source  = "terraform-google-modules/vm/google//modules/compute_instance"
-#  version = "~> 10.1.1"
-#
-#  hostname = local.bastion_name
-#  region   = var.region
-#  zone     = "${var.region}-a"
-#
-#  instance_template   = module.bastion_instance_template.self_link
-#  subnetwork          = module.network.subnets["${var.region}/bastion"].self_link
-#  num_instances       = 1
-#  deletion_protection = false
-#
-#  access_config = [
-#    {
-#      nat_ip       = module.bastion_ip.addresses[0]
-#      network_tier = "PREMIUM"
-#    },
-#  ]
-#}
+module "openvpn_ip" {
+  source  = "terraform-google-modules/address/google"
+  version = "~> 3.2"
+
+  names      = [local.openvpn_name]
+  project_id = var.project_id
+  region     = var.region
+
+  global       = false
+  address_type = "EXTERNAL"
+}
+
+module "openvpn_sa" {
+  source  = "terraform-google-modules/service-accounts/google"
+  version = "~> 4.2.2"
+
+  names      = [local.openvpn_name]
+  project_id = var.project_id
+}
+
+module "openvpn_instance_template" {
+  source  = "terraform-google-modules/vm/google//modules/instance_template"
+  version = "~> 10.1.1"
+
+  name_prefix = local.openvpn_name
+  project_id  = var.project_id
+  region      = var.region
+
+  machine_type         = "e2-highcpu-2"
+  disk_size_gb         = "32"
+  disk_type            = "pd-ssd"
+  source_image_project = "ubuntu-os-cloud"
+  source_image         = "ubuntu-2204-lts"
+  subnetwork           = module.network.subnets["${var.region}/openvpn"].self_link
+  tags                 = [local.openvpn_tag, local.tag_all]
+  metadata             = {
+    ssh-keys = var.terraform_user_ssh_pub_key
+  }
+  service_account = {
+    email  = module.openvpn_sa.email
+    scopes = [
+      "https://www.googleapis.com/auth/compute"
+    ]
+  }
+}
+
+module "openvpn_compute_instance" {
+  source  = "terraform-google-modules/vm/google//modules/compute_instance"
+  version = "~> 10.1.1"
+
+  hostname = local.openvpn_name
+  region   = var.region
+  zone     = "${var.region}-a"
+
+  instance_template   = module.openvpn_instance_template.self_link
+  subnetwork          = module.network.subnets["${var.region}/openvpn"].self_link
+  num_instances       = 1
+  deletion_protection = false
+
+  access_config = [
+    {
+      nat_ip       = module.openvpn_ip.addresses[0]
+      network_tier = "PREMIUM"
+    },
+  ]
+}
 
 module "gke_cluster_sa" {
   source  = "terraform-google-modules/service-accounts/google"

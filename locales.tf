@@ -3,8 +3,8 @@ locals {
 
   tag_all = "${local.base_name}-all"
 
-  bastion_name          = "${local.base_name}-bastion"
-  bastion_tag           = "${local.base_name}-bastion"
+  openvpn_name          = "${local.base_name}-openvpn"
+  openvpn_tag           = "${local.base_name}-openvpn"
   gke_cluster_name      = "${local.base_name}-gke"
   gke_cluster_tag       = "${local.base_name}-gke"
   gke_pool_generic_name = "${local.base_name}-gke-pool-generic"

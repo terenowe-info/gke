@@ -40,7 +40,11 @@ module "network" {
       allow         = [
         {
           protocol = "TCP"
-          port     = ["22", "943"]
+          port     = ["22"]
+        },
+        {
+          protocol = "TCP"
+          port     = ["943"]
         }
       ]
     }

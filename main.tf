@@ -40,11 +40,15 @@ module "network" {
       allow         = [
         {
           protocol = "TCP"
-          port     = ["22"]
+          ports     = ["22"]
         },
         {
           protocol = "TCP"
-          port     = ["943"]
+          ports     = ["443", "943", "1194"]
+        },
+        {
+          protocol = "UDP"
+          ports     = ["443", "943", "1194"]
         }
       ]
     }

@@ -307,7 +307,7 @@ module "sigma_prod_terenowe_dns_zone" {
     {
       name    = "vpn.local"
       type    = "A"
-      ttl     = 300
+      ttl     = 60
       records = [
         local.bastion_openvpn_static_ip,
       ]

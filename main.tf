@@ -27,7 +27,7 @@ module "network" {
       subnet_region = var.region
     },
     {
-      subnet_name   = local.aaa_gke_cluster_lb_base_name
+      subnet_name   = local.aaa_gke_cluster_lb_spec_name
       subnet_ip     = local.aaa_gke_cluster_lb_ip_range
       subnet_region = var.region
     }

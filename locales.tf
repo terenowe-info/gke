@@ -20,7 +20,7 @@ locals {
   aaa_gke_cluster_pool_aaa       = "pool-aaa"
   aaa_gke_cluster_pool_aaa_tag   = local.aaa_gke_cluster_pool_aaa
 
-  aaa_gke_cluster_lb_base_name = "${local.base_name}-${local.aaa_gke_cluster_name}-lbl"
+  aaa_gke_cluster_lb_base_name = "${local.base_name}-${local.aaa_gke_cluster_name}-lb"
   aaa_gke_cluster_lb_spec_name = "gke-${local.base_name}-${local.aaa_gke_cluster_name}-lb"
   aaa_gke_cluster_lb_ip_range  = "10.150.150.0/24"
 }

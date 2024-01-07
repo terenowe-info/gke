@@ -39,7 +39,7 @@ module "network" {
   ingress_rules = [
     {
       name          = "${local.base_name}-internet-to-bastion-via-ssh"
-      source_ranges = ["0.0.0.0/0"]
+      source_ranges = [var.remote_access_cidr]
       target_tag    = [local.vm_openvpn_tag]
       allow         = [
         {

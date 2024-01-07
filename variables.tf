@@ -1,10 +1,12 @@
 # Initialize
 variable "project_id" {
-  type = string
+  type    = string
+  default = "core-337701"
 }
 
 variable "project_name" {
-  type = string
+  type    = string
+  default = "core-337701"
 }
 
 variable "region" {

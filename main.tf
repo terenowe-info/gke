@@ -17,20 +17,20 @@ module "network" {
       subnet_region = var.region
     },
     {
-      subnet_name   = "gke-cluster"
+      subnet_name   = local.aaa_gke_cluster
       subnet_ip     = "10.100.255.0/24"
       subnet_region = var.region
     }
   ]
 
   secondary_ranges = {
-    gke-cluster = [
+    "${local.aaa_gke_cluster}" = [
       {
-        range_name    = "gke-cluster-pods"
+        range_name    = "${local.aaa_gke_cluster}-pods"
         ip_cidr_range = "10.96.0.0/20"
       },
       {
-        range_name    = "gke-cluster-services"
+        range_name    = "${local.aaa_gke_cluster}-services"
         ip_cidr_range = "10.100.16.0/24"
       }
     ]
@@ -119,7 +119,7 @@ module "openvpn_instance_template" {
   source_image_project = "ubuntu-os-cloud"
   source_image         = "ubuntu-2204-lts"
   subnetwork           = module.network.subnets["${var.region}/bastion"].self_link
-  tag                  = [local.bastion_openvpn_tag, local.base_tag]
+  tags                 = [local.bastion_openvpn_tag, local.base_tag]
   metadata             = {
     ssh-keys = var.terraform_user_ssh_pub_key
   }
@@ -140,8 +140,9 @@ module "openvpn_compute_instance" {
   zone                = "${var.region}-a"
   instance_template   = module.openvpn_instance_template.self_link
   subnetwork          = module.network.subnets["${var.region}/bastion"].self_link
+  static_ips          = ["10.255.255.100"]
   num_instances       = 1
-  deletion_protection = true
+  deletion_protection = false
 
   access_config = [
     {
@@ -155,38 +156,38 @@ module "openvpn_compute_instance" {
 #
 #   GKE Cluster
 #
-module "gke_cluster_sa" {
+module "aaa_gke_cluster_sa" {
   source  = "terraform-google-modules/service-accounts/google"
   version = "~> 4.2.2"
 
   names = [
-    "${local.gke_cluster}-gke"
+    "${local.aaa_gke_cluster}-gke"
   ]
   project_id = var.project_id
 }
 
-module "gke_cluster" {
+module "aaa_gke_cluster" {
   source  = "terraform-google-modules/kubernetes-engine/google//modules/private-cluster"
   version = "29.0.0"
 
   project_id = var.project_id
-  name       = local.gke_cluster
+  name       = local.aaa_gke_cluster
   region     = var.region
 
   zones      = ["${var.region}-a"]
   network    = module.network.network_name
-  subnetwork = module.network.subnets["${var.region}/gke-cluster"].name
+  subnetwork = module.network.subnets["${var.region}/${local.aaa_gke_cluster}"].name
 
-  ip_range_pods     = "gke-cluster-pods"
-  ip_range_services = "gke-cluster-services"
+  ip_range_pods     = "${local.aaa_gke_cluster}-pods"
+  ip_range_services = "${local.aaa_gke_cluster}-services"
 
   deletion_protection        = false
-  remove_default_node_pool   = true
   http_load_balancing        = false
   network_policy             = false
   horizontal_pod_autoscaling = false
   filestore_csi_driver       = false
   enable_private_endpoint    = false
+  remove_default_node_pool   = true
   enable_private_nodes       = true
   master_ipv4_cidr_block     = "10.100.101.240/28"
 
@@ -196,7 +197,7 @@ module "gke_cluster" {
       display_name = "ActiveAddress"
     },
     {
-      cidr_block   = module.network.subnets["${var.region}/gke-cluster"].ip_cidr_range
+      cidr_block   = module.network.subnets["${var.region}/${local.aaa_gke_cluster}"].ip_cidr_range
       display_name = "BastionInternal"
     }
   ]
@@ -215,7 +216,7 @@ module "gke_cluster" {
 
   node_pools = [
     {
-      name               = local.gke_pool_aaa
+      name               = local.aaa_gke_pool_aaa
       machine_type       = "e2-standard-4"
       node_locations     = "${var.region}-a"
       initial_node_count = 1
@@ -232,7 +233,7 @@ module "gke_cluster" {
       logging_variant    = "DEFAULT"
       auto_repair        = true
       auto_upgrade       = true
-      service_account    = module.gke_cluster_sa.email
+      service_account    = module.aaa_gke_cluster_sa.email
     }
   ]
 
@@ -263,12 +264,12 @@ module "gke_cluster" {
     spot = []
   }
 
-  node_pools_tag = {
+  node_pools_tags = {
     all  = []
     spot = [
       local.base_tag,
-      local.gke_cluster_tag,
-      local.gke_pool_aaa_tag
+      local.aaa_gke_cluster_tag,
+      local.aaa_gke_pool_aaa_tag
     ]
   }
 }

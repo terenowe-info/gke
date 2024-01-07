@@ -38,7 +38,7 @@ variable "stack_name" {
 
 variable "env_name" {
   type    = string
-  default = "stg"
+  default = "prod"
 }
 
 variable "remote_access_cidr" {

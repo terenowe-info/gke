@@ -1,3 +1,7 @@
+################################################
+#
+#   Networking
+#
 module "network" {
   source  = "terraform-google-modules/network/google"
   version = "~> 8.1"
@@ -8,7 +12,7 @@ module "network" {
 
   subnets = [
     {
-      subnet_name   = "openvpn"
+      subnet_name   = local.subnet_bastion_name
       subnet_ip     = "10.255.255.0/29"
       subnet_region = var.region
     },
@@ -34,21 +38,21 @@ module "network" {
 
   ingress_rules = [
     {
-      name          = "${local.base_name}-internet-to-openvpn-via-ssh"
+      name          = "${local.base_name}-internet-to-${local.subnet_bastion_name}-via-ssh"
       source_ranges = ["0.0.0.0/0"]
-      target_tags   = [local.openvpn_tag]
+      target_tags   = [local.instance_openvpn_tag]
       allow         = [
         {
           protocol = "TCP"
-          ports     = ["22"]
+          ports    = ["22"]
         },
         {
           protocol = "TCP"
-          ports     = ["443", "943", "1194"]
+          ports    = ["443", "943", "1194"]
         },
         {
           protocol = "UDP"
-          ports     = ["443", "943", "1194"]
+          ports    = ["443", "943", "1194"]
         }
       ]
     }
@@ -77,11 +81,23 @@ module "cloud_nat" {
   router = module.cloud_router.router.name
 }
 
+################################################
+#
+#   Instance    -   OpenVPN
+#
+module "openvpn_sa" {
+  source  = "terraform-google-modules/service-accounts/google"
+  version = "~> 4.2.2"
+
+  names      = [local.instance_openvpn_name]
+  project_id = var.project_id
+}
+
 module "openvpn_ip" {
   source  = "terraform-google-modules/address/google"
   version = "~> 3.2"
 
-  names      = [local.openvpn_name]
+  names      = [local.instance_openvpn_name]
   project_id = var.project_id
   region     = var.region
 
@@ -89,19 +105,11 @@ module "openvpn_ip" {
   address_type = "EXTERNAL"
 }
 
-module "openvpn_sa" {
-  source  = "terraform-google-modules/service-accounts/google"
-  version = "~> 4.2.2"
-
-  names      = [local.openvpn_name]
-  project_id = var.project_id
-}
-
 module "openvpn_instance_template" {
   source  = "terraform-google-modules/vm/google//modules/instance_template"
   version = "~> 10.1.1"
 
-  name_prefix = local.openvpn_name
+  name_prefix = local.instance_openvpn_name
   project_id  = var.project_id
   region      = var.region
 
@@ -110,8 +118,8 @@ module "openvpn_instance_template" {
   disk_type            = "pd-ssd"
   source_image_project = "ubuntu-os-cloud"
   source_image         = "ubuntu-2204-lts"
-  subnetwork           = module.network.subnets["${var.region}/openvpn"].self_link
-  tags                 = [local.openvpn_tag, local.tag_all]
+  subnetwork           = module.network.subnets["${var.region}/${local.subnet_bastion_name}"].self_link
+  tags                 = [local.instance_openvpn_tag, local.tag_all]
   metadata             = {
     ssh-keys = var.terraform_user_ssh_pub_key
   }
@@ -127,14 +135,13 @@ module "openvpn_compute_instance" {
   source  = "terraform-google-modules/vm/google//modules/compute_instance"
   version = "~> 10.1.1"
 
-  hostname = local.openvpn_name
-  region   = var.region
-  zone     = "${var.region}-a"
-
+  hostname            = local.instance_openvpn_name
+  region              = var.region
+  zone                = "${var.region}-a"
   instance_template   = module.openvpn_instance_template.self_link
-  subnetwork          = module.network.subnets["${var.region}/openvpn"].self_link
+  subnetwork          = module.network.subnets["${var.region}/${local.subnet_bastion_name}"].self_link
   num_instances       = 1
-  deletion_protection = false
+  deletion_protection = true
 
   access_config = [
     {
@@ -144,6 +151,10 @@ module "openvpn_compute_instance" {
   ]
 }
 
+################################################
+#
+#   GKE Cluster
+#
 module "gke_cluster_sa" {
   source  = "terraform-google-modules/service-accounts/google"
   version = "~> 4.2.2"
@@ -160,7 +171,7 @@ module "gke_cluster" {
   name       = local.base_name
   region     = var.region
 
-  zones      = ["${var.region}-a", "${var.region}-b", "${var.region}-c"]
+  zones      = ["${var.region}-a"]    #, "${var.region}-b", "${var.region}-c"
   network    = module.network.network_name
   subnetwork = module.network.subnets["${var.region}/gke-cluster"].name
 
@@ -182,10 +193,10 @@ module "gke_cluster" {
       cidr_block   = var.remote_access_cidr
       display_name = "ActiveAddress"
     },
-    #    {
-    #      cidr_block   = module.network.subnets["${var.region}/gke-cluster"].ip_cidr_range
-    #      display_name = "BastionInternal"
-    #    }
+    {
+      cidr_block   = module.network.subnets["${var.region}/gke-cluster"].ip_cidr_range
+      display_name = "BastionInternal"
+    }
   ]
 
   #monitoring_service = "none"
@@ -205,9 +216,9 @@ module "gke_cluster" {
       name               = "spot"
       machine_type       = "e2-standard-4"
       node_locations     = "${var.region}-a"
-      initial_node_count = 2
-      min_count          = 2
-      max_count          = 2
+      initial_node_count = 1
+      min_count          = 1
+      max_count          = 1
       local_ssd_count    = 0
       spot               = false
       preemptible        = true

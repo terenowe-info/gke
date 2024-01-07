@@ -13,12 +13,12 @@ module "network" {
   subnets = [
     {
       subnet_name   = "bastion"
-      subnet_ip     = "10.255.255.0/24"
+      subnet_ip     = local.bastion_range
       subnet_region = var.region
     },
     {
       subnet_name   = local.aaa_gke_cluster
-      subnet_ip     = "10.100.255.0/24"
+      subnet_ip     = local.aaa_gke_cluster_nodes_range
       subnet_region = var.region
     }
   ]

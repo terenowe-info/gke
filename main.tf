@@ -13,7 +13,7 @@ module "network" {
   subnets = [
     {
       subnet_name   = "bastion"
-      subnet_ip     = "10.255.255.0/29"
+      subnet_ip     = "10.255.255.0/24"
       subnet_region = var.region
     },
     {
@@ -160,9 +160,7 @@ module "aaa_gke_cluster_sa" {
   source  = "terraform-google-modules/service-accounts/google"
   version = "~> 4.2.2"
 
-  names = [
-    "${local.aaa_gke_cluster}-gke"
-  ]
+  names      = [local.aaa_gke_cluster]
   project_id = var.project_id
 }
 

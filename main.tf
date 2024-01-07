@@ -12,26 +12,26 @@ module "network" {
 
   subnets = [
     {
-      subnet_name   = "bastion"
-      subnet_ip     = local.bastion_range
+      subnet_name   = local.management_base_name
+      subnet_ip     = local.management_ip_range
       subnet_region = var.region
     },
     {
-      subnet_name   = local.aaa_gke_cluster
-      subnet_ip     = local.aaa_gke_cluster_nodes_range
+      subnet_name   = local.aaa_gke_cluster_spec_name
+      subnet_ip     = local.aaa_gke_cluster_nodes_ip_range
       subnet_region = var.region
     }
   ]
 
   secondary_ranges = {
-    "${local.aaa_gke_cluster}" = [
+    "${local.aaa_gke_cluster_spec_name}" = [
       {
-        range_name    = "${local.aaa_gke_cluster}-pods"
-        ip_cidr_range = local.aaa_gke_cluster_pods_range
+        range_name    = "${local.aaa_gke_cluster_spec_name}-pods"
+        ip_cidr_range = local.aaa_gke_cluster_pods_ip_range
       },
       {
-        range_name    = "${local.aaa_gke_cluster}-services"
-        ip_cidr_range = local.aaa_gke_cluster_svc_range
+        range_name    = "${local.aaa_gke_cluster_spec_name}-services"
+        ip_cidr_range = local.aaa_gke_cluster_svc_ip_range
       }
     ]
   }
@@ -40,7 +40,7 @@ module "network" {
     {
       name          = "${local.base_name}-internet-to-bastion-via-ssh"
       source_ranges = ["0.0.0.0/0"]
-      target_tag    = [local.bastion_openvpn_tag]
+      target_tag    = [local.vm_openvpn_tag]
       allow         = [
         {
           protocol = "TCP"
@@ -89,7 +89,7 @@ module "openvpn_sa" {
   source  = "terraform-google-modules/service-accounts/google"
   version = "~> 4.2.2"
 
-  names      = [local.bastion_openvpn_name]
+  names      = [local.vm_openvpn_base_name]
   project_id = var.project_id
 }
 
@@ -97,7 +97,7 @@ module "openvpn_ip" {
   source  = "terraform-google-modules/address/google"
   version = "~> 3.2"
 
-  names      = [local.bastion_openvpn_name]
+  names      = [local.vm_openvpn_base_name]
   project_id = var.project_id
   region     = var.region
 
@@ -109,7 +109,7 @@ module "openvpn_instance_template" {
   source  = "terraform-google-modules/vm/google//modules/instance_template"
   version = "~> 10.1.1"
 
-  name_prefix = local.bastion_openvpn_name
+  name_prefix = local.vm_openvpn_base_name
   project_id  = var.project_id
   region      = var.region
 
@@ -118,8 +118,8 @@ module "openvpn_instance_template" {
   disk_type            = "pd-ssd"
   source_image_project = "ubuntu-os-cloud"
   source_image         = "ubuntu-2204-lts"
-  subnetwork           = module.network.subnets["${var.region}/bastion"].self_link
-  tags                 = [local.bastion_openvpn_tag, local.base_tag]
+  subnetwork           = module.network.subnets["${var.region}/${local.management_base_name}"].self_link
+  tags                 = [local.vm_openvpn_tag, local.base_tag]
   metadata             = {
     ssh-keys = var.terraform_user_ssh_pub_key
   }
@@ -135,12 +135,12 @@ module "openvpn_compute_instance" {
   source  = "terraform-google-modules/vm/google//modules/compute_instance"
   version = "~> 10.1.1"
 
-  hostname            = local.bastion_openvpn_name
+  hostname            = local.vm_openvpn_base_name
   region              = var.region
   zone                = "${var.region}-a"
   instance_template   = module.openvpn_instance_template.self_link
-  subnetwork          = module.network.subnets["${var.region}/bastion"].self_link
-  static_ips          = [local.bastion_openvpn_static_ip]
+  subnetwork          = module.network.subnets["${var.region}/${local.management_base_name}"].self_link
+  static_ips          = [local.vm_openvpn_static_ip]
   num_instances       = 1
   deletion_protection = false
 
@@ -160,7 +160,7 @@ module "aaa_gke_cluster_sa" {
   source  = "terraform-google-modules/service-accounts/google"
   version = "~> 4.2.2"
 
-  names      = [local.aaa_gke_cluster]
+  names      = [local.aaa_gke_cluster_spec_name]
   project_id = var.project_id
 }
 
@@ -169,15 +169,15 @@ module "aaa_gke_cluster" {
   version = "29.0.0"
 
   project_id = var.project_id
-  name       = local.aaa_gke_cluster
+  name       = local.aaa_gke_cluster_base_name
   region     = var.region
 
   zones      = ["${var.region}-a"]
   network    = module.network.network_name
-  subnetwork = module.network.subnets["${var.region}/${local.aaa_gke_cluster}"].name
+  subnetwork = module.network.subnets["${var.region}/${local.aaa_gke_cluster_spec_name}"].name
 
-  ip_range_pods     = "${local.aaa_gke_cluster}-pods"
-  ip_range_services = "${local.aaa_gke_cluster}-services"
+  ip_range_pods     = "${local.aaa_gke_cluster_spec_name}-pods"
+  ip_range_services = "${local.aaa_gke_cluster_spec_name}-services"
 
   deletion_protection        = false
   http_load_balancing        = false
@@ -195,7 +195,7 @@ module "aaa_gke_cluster" {
       display_name = "ActiveAddress"
     },
     {
-      cidr_block   = module.network.subnets["${var.region}/${local.aaa_gke_cluster}"].ip_cidr_range
+      cidr_block   = module.network.subnets["${var.region}/${local.aaa_gke_cluster_spec_name}"].ip_cidr_range
       display_name = "BastionInternal"
     }
   ]
@@ -214,7 +214,7 @@ module "aaa_gke_cluster" {
 
   node_pools = [
     {
-      name               = local.aaa_gke_pool_aaa
+      name               = local.aaa_gke_cluster_pool_aaa
       machine_type       = "e2-standard-4"
       node_locations     = "${var.region}-a"
       initial_node_count = 1
@@ -267,7 +267,7 @@ module "aaa_gke_cluster" {
     spot = [
       local.base_tag,
       local.aaa_gke_cluster_tag,
-      local.aaa_gke_pool_aaa_tag
+      local.aaa_gke_cluster_pool_aaa_tag
     ]
   }
 }
@@ -276,11 +276,13 @@ module "sigma_prod_terenowe_dns_zone" {
   source  = "terraform-google-modules/cloud-dns/google"
   version = "~> 5.0"
 
-  project_id    = var.project_id
-  type          = "public"
-  name          = "sigma-prod-terenowe-l3t-io"
-  domain        = "sigma.prod.terenowe.l3t.io."
-  #  private_visibility_config_networks = [var.network_self_links]
+  project_id                         = var.project_id
+  type                               = "public"
+  name                               = "sigma-prod-terenowe-l3t-io"
+  domain                             = "sigma.prod.terenowe.l3t.io."
+  private_visibility_config_networks = [
+    module.network.network_self_link
+  ]
 
   enable_logging = false
 
@@ -298,10 +300,10 @@ module "sigma_prod_terenowe_dns_zone" {
       type    = "NS"
       ttl     = 60
       records = [
-        "ns-cloud-d1.googledomains.com.",
-        "ns-cloud-d2.googledomains.com.",
-        "ns-cloud-d3.googledomains.com.",
-        "ns-cloud-d4.googledomains.com.",
+        "ns-cloud-a1.googledomains.com.",
+        "ns-cloud-a2.googledomains.com.",
+        "ns-cloud-a3.googledomains.com.",
+        "ns-cloud-a4.googledomains.com.",
       ]
     },
     {
@@ -309,7 +311,7 @@ module "sigma_prod_terenowe_dns_zone" {
       type    = "A"
       ttl     = 60
       records = [
-        local.bastion_openvpn_static_ip,
+        local.vm_openvpn_static_ip,
       ]
     },
     {

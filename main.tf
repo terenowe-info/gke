@@ -20,6 +20,11 @@ module "network" {
       subnet_name   = local.aaa_gke_cluster_spec_name
       subnet_ip     = local.aaa_gke_cluster_nodes_ip_range
       subnet_region = var.region
+    },
+    {
+      subnet_name   = "test"
+      subnet_ip     = "10.101.255.0/24"
+      subnet_region = var.region
     }
   ]
 

@@ -276,10 +276,10 @@ module "sigma_prod_terenowe_dns_zone" {
   source  = "terraform-google-modules/cloud-dns/google"
   version = "~> 5.0"
 
-  project_id = var.project_id
-  type       = "public"
-  name       = "sigma-prod-terenowe-l3t-io"
-  domain     = "sigma.prod.terenowe.l3t.io."
+  project_id    = var.project_id
+  type          = "public"
+  name          = "sigma-prod-terenowe-l3t-io"
+  domain        = "sigma.prod.terenowe.l3t.io."
   #  private_visibility_config_networks = [var.network_self_links]
 
   enable_logging = false

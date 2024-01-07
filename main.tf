@@ -12,7 +12,7 @@ module "network" {
 
   subnets = [
     {
-      subnet_name   = local.subnet_bastion_name
+      subnet_name   = "bastion"
       subnet_ip     = "10.255.255.0/29"
       subnet_region = var.region
     },
@@ -38,9 +38,9 @@ module "network" {
 
   ingress_rules = [
     {
-      name          = "${local.base_name}-internet-to-${local.subnet_bastion_name}-via-ssh"
+      name          = "${local.base_name}-internet-to-bastion-via-ssh"
       source_ranges = ["0.0.0.0/0"]
-      target_tags   = [local.instance_openvpn_tag]
+      target_tag    = [local.bastion_openvpn_tag]
       allow         = [
         {
           protocol = "TCP"
@@ -89,7 +89,7 @@ module "openvpn_sa" {
   source  = "terraform-google-modules/service-accounts/google"
   version = "~> 4.2.2"
 
-  names      = [local.instance_openvpn_name]
+  names      = [local.bastion_openvpn_name]
   project_id = var.project_id
 }
 
@@ -97,7 +97,7 @@ module "openvpn_ip" {
   source  = "terraform-google-modules/address/google"
   version = "~> 3.2"
 
-  names      = [local.instance_openvpn_name]
+  names      = [local.bastion_openvpn_name]
   project_id = var.project_id
   region     = var.region
 
@@ -109,7 +109,7 @@ module "openvpn_instance_template" {
   source  = "terraform-google-modules/vm/google//modules/instance_template"
   version = "~> 10.1.1"
 
-  name_prefix = local.instance_openvpn_name
+  name_prefix = local.bastion_openvpn_name
   project_id  = var.project_id
   region      = var.region
 
@@ -118,8 +118,8 @@ module "openvpn_instance_template" {
   disk_type            = "pd-ssd"
   source_image_project = "ubuntu-os-cloud"
   source_image         = "ubuntu-2204-lts"
-  subnetwork           = module.network.subnets["${var.region}/${local.subnet_bastion_name}"].self_link
-  tags                 = [local.instance_openvpn_tag, local.tag_all]
+  subnetwork           = module.network.subnets["${var.region}/bastion"].self_link
+  tag                  = [local.bastion_openvpn_tag, local.base_tag]
   metadata             = {
     ssh-keys = var.terraform_user_ssh_pub_key
   }
@@ -135,11 +135,11 @@ module "openvpn_compute_instance" {
   source  = "terraform-google-modules/vm/google//modules/compute_instance"
   version = "~> 10.1.1"
 
-  hostname            = local.instance_openvpn_name
+  hostname            = local.bastion_openvpn_name
   region              = var.region
   zone                = "${var.region}-a"
   instance_template   = module.openvpn_instance_template.self_link
-  subnetwork          = module.network.subnets["${var.region}/${local.subnet_bastion_name}"].self_link
+  subnetwork          = module.network.subnets["${var.region}/bastion"].self_link
   num_instances       = 1
   deletion_protection = true
 
@@ -159,7 +159,9 @@ module "gke_cluster_sa" {
   source  = "terraform-google-modules/service-accounts/google"
   version = "~> 4.2.2"
 
-  names      = [local.gke_cluster_name]
+  names = [
+    "${local.gke_cluster}-gke"
+  ]
   project_id = var.project_id
 }
 
@@ -168,10 +170,10 @@ module "gke_cluster" {
   version = "29.0.0"
 
   project_id = var.project_id
-  name       = local.base_name
+  name       = local.gke_cluster
   region     = var.region
 
-  zones      = ["${var.region}-a"]    #, "${var.region}-b", "${var.region}-c"
+  zones      = ["${var.region}-a"]
   network    = module.network.network_name
   subnetwork = module.network.subnets["${var.region}/gke-cluster"].name
 
@@ -213,7 +215,7 @@ module "gke_cluster" {
 
   node_pools = [
     {
-      name               = "spot"
+      name               = local.gke_pool_aaa
       machine_type       = "e2-standard-4"
       node_locations     = "${var.region}-a"
       initial_node_count = 1
@@ -242,38 +244,31 @@ module "gke_cluster" {
   }
 
   node_pools_labels = {
-    all     = {}
-    generic = {}
-    spot    = {}
+    all  = {}
+    spot = {}
   }
 
   node_pools_resource_labels = {
-    all     = {}
-    generic = {}
-    spot    = {}
+    all  = {}
+    spot = {}
   }
 
   node_pools_metadata = {
-    all     = {}
-    generic = {}
-    spot    = {}
+    all  = {}
+    spot = {}
   }
 
   node_pools_taints = {
-    all     = []
-    generic = []
-    spot    = []
+    all  = []
+    spot = []
   }
 
-  node_pools_tags = {
-    all     = []
-    generic = [
-      local.tag_all,
-      local.gke_pool_generic_tag
-    ]
+  node_pools_tag = {
+    all  = []
     spot = [
-      local.tag_all,
-      local.gke_pool_spot_tag
+      local.base_tag,
+      local.gke_cluster_tag,
+      local.gke_pool_aaa_tag
     ]
   }
 }

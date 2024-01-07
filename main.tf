@@ -197,7 +197,11 @@ module "aaa_gke_cluster" {
     {
       cidr_block   = module.network.subnets["${var.region}/${local.aaa_gke_cluster_spec_name}"].ip_cidr_range
       display_name = "BastionInternal"
-    }
+    },
+    {
+      cidr_block   = "${module.openvpn_ip.addresses[0]}/32"
+      display_name = "OpenVPNExternalAddress"
+    },
   ]
 
   #monitoring_service = "none"

@@ -140,7 +140,7 @@ module "openvpn_compute_instance" {
   zone                = "${var.region}-a"
   instance_template   = module.openvpn_instance_template.self_link
   subnetwork          = module.network.subnets["${var.region}/bastion"].self_link
-  static_ips          = ["10.255.255.100"]
+  static_ips          = [local.bastion_openvpn_static_ip]
   num_instances       = 1
   deletion_protection = false
 
@@ -270,4 +270,55 @@ module "aaa_gke_cluster" {
       local.aaa_gke_pool_aaa_tag
     ]
   }
+}
+
+module "sigma_prod_terenowe_dns_zone" {
+  source  = "terraform-google-modules/cloud-dns/google"
+  version = "~> 5.0"
+
+  project_id = var.project_id
+  type       = "public"
+  name       = "sigma-prod-terenowe-l3t-io"
+  domain     = "sigma.prod.terenowe.l3t.io."
+  #  private_visibility_config_networks = [var.network_self_links]
+
+  enable_logging = false
+
+  recordsets = [
+    {
+      name    = ""
+      type    = "SOA"
+      ttl     = 60
+      records = [
+        "ns-cloud-d1.googledomains.com. cloud-dns-hostmaster.google.com. 1 21600 3600 259200 300"
+      ]
+    },
+    {
+      name    = ""
+      type    = "NS"
+      ttl     = 60
+      records = [
+        "ns-cloud-d1.googledomains.com.",
+        "ns-cloud-d2.googledomains.com.",
+        "ns-cloud-d3.googledomains.com.",
+        "ns-cloud-d4.googledomains.com.",
+      ]
+    },
+    {
+      name    = "vpn.local"
+      type    = "A"
+      ttl     = 300
+      records = [
+        local.bastion_openvpn_static_ip,
+      ]
+    },
+    {
+      name    = "vpn"
+      type    = "A"
+      ttl     = 60
+      records = [
+        module.openvpn_ip.addresses[0],
+      ]
+    },
+  ]
 }

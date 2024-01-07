@@ -2,9 +2,10 @@ locals {
   base_name = "${var.stack_name}-${var.env_name}"
   base_tag  = "${local.base_name}-all"
 
-  bastion_range        = "10.255.255.0/24"
-  bastion_openvpn_name = "${local.base_name}-openvpn"
-  bastion_openvpn_tag  = "${local.base_name}-openvpn"
+  bastion_range             = "10.255.255.0/24"
+  bastion_openvpn_name      = "${local.base_name}-openvpn"
+  bastion_openvpn_static_ip = "10.255.255.100"
+  bastion_openvpn_tag       = "${local.base_name}-openvpn"
 
   aaa_gke_cluster             = "${local.base_name}-aaa"
   aaa_gke_cluster_tag         = local.aaa_gke_cluster

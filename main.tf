@@ -300,10 +300,10 @@ module "sigma_prod_terenowe_dns_zone" {
       type    = "NS"
       ttl     = 60
       records = [
-        "ns-cloud-a1.googledomains.com.",
-        "ns-cloud-a2.googledomains.com.",
-        "ns-cloud-a3.googledomains.com.",
-        "ns-cloud-a4.googledomains.com.",
+        "ns-cloud-d1.googledomains.com.",
+        "ns-cloud-d2.googledomains.com.",
+        "ns-cloud-d3.googledomains.com.",
+        "ns-cloud-d4.googledomains.com.",
       ]
     },
     {

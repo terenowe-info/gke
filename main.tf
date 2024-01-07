@@ -27,11 +27,11 @@ module "network" {
     "${local.aaa_gke_cluster}" = [
       {
         range_name    = "${local.aaa_gke_cluster}-pods"
-        ip_cidr_range = "10.96.0.0/20"
+        ip_cidr_range = local.aaa_gke_cluster_pods_range
       },
       {
         range_name    = "${local.aaa_gke_cluster}-services"
-        ip_cidr_range = "10.100.16.0/24"
+        ip_cidr_range = local.aaa_gke_cluster_svc_range
       }
     ]
   }

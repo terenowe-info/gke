@@ -319,17 +319,19 @@ module "sigma_prod_terenowe_dns_zone" {
       name    = "vpn.local"
       type    = "A"
       ttl     = 60
-      records = [
-        local.vm_openvpn_static_ip,
-      ]
+      records = [local.vm_openvpn_static_ip]
     },
     {
       name    = "vpn"
       type    = "A"
       ttl     = 60
-      records = [
-        module.openvpn_ip.addresses[0],
-      ]
+      records = [module.openvpn_ip.addresses[0]]
+    },
+    {
+      name    = "argocd.local"
+      type    = "A"
+      ttl     = 60
+      records = ["10.150.150.10"]
     },
   ]
 }

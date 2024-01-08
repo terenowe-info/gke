@@ -331,7 +331,7 @@ module "sigma_prod_terenowe_dns_zone" {
       name    = "argocd.local"
       type    = "A"
       ttl     = 60
-      records = ["10.150.150.10"]
+      records = ["10.150.150.150"]
     },
   ]
 }

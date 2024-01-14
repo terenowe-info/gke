@@ -27,6 +27,6 @@ terraform apply -var "remote_access_cidr=${CURRENT_IP}/32"
 
 ```bash
 sudo openvpn \
-  --config /home/user/client.ovpn \
-  --auth-user-pass /home/user/pass.txt
+  --config /home/taw/downloads/profile-2892820648550274972.ovpn \
+  --auth-user-pass /home/taw/downloads/pass.txt
 ```

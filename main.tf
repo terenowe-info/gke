@@ -287,8 +287,8 @@ module "sigma_prod_terenowe_dns_zone" {
 
   project_id                         = var.project_id
   type                               = "public"
-  name                               = "sigma-prod-terenowe-l3t-io"
-  domain                             = "sigma.prod.terenowe.l3t.io."
+  name                               = "sigma-prod-terenowe-seems-cloud"
+  domain                             = "sigma.prod.terenowe.seems.cloud."
   private_visibility_config_networks = [
     module.network.network_self_link
   ]
@@ -298,21 +298,13 @@ module "sigma_prod_terenowe_dns_zone" {
   recordsets = [
     {
       name    = ""
-      type    = "SOA"
-      ttl     = 60
-      records = [
-        "ns-cloud-d1.googledomains.com. cloud-dns-hostmaster.google.com. 1 21600 3600 259200 300"
-      ]
-    },
-    {
-      name    = ""
       type    = "NS"
       ttl     = 60
       records = [
-        "ns-cloud-d1.googledomains.com.",
-        "ns-cloud-d2.googledomains.com.",
-        "ns-cloud-d3.googledomains.com.",
-        "ns-cloud-d4.googledomains.com.",
+        "ns-cloud-a1.googledomains.com.",
+        "ns-cloud-a2.googledomains.com.",
+        "ns-cloud-a3.googledomains.com.",
+        "ns-cloud-a4.googledomains.com.",
       ]
     },
     {

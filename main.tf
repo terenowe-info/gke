@@ -361,7 +361,7 @@ module "l3t_io" {
       ]
     },
     {
-      name    = "diag"
+      name    = ""
       type    = "A"
       ttl     = 60
       records = ["34.118.4.44"]

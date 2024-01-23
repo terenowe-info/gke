@@ -348,41 +348,23 @@ module "l3t_io" {
 
   enable_logging = false
 
-#  recordsets = [
-#    {
-#      name    = ""
-#      type    = "NS"
-#      ttl     = 60
-#      records = [
-#        "ns-cloud-c1.googledomains.com.",
-#        "ns-cloud-c2.googledomains.com.",
-#        "ns-cloud-c3.googledomains.com.",
-#        "ns-cloud-c4.googledomains.com.",
-#      ]
-#    },
-#    {
-    #      name    = "vpn.local"
-    #      type    = "A"
-    #      ttl     = 60
-    #      records = [local.vm_openvpn_static_ip]
-    #    },
-    #    {
-    #      name    = "vpn"
-    #      type    = "A"
-    #      ttl     = 60
-    #      records = [module.openvpn_ip.addresses[0]]
-    #    },
-    #    {
-    #      name    = "hostname"
-    #      type    = "A"
-    #      ttl     = 60
-    #      records = ["34.118.4.44"]
-    #    },
-#    {
-    #      name    = "diag"
-    #      type    = "A"
-    #      ttl     = 60
-    #      records = ["34.118.4.44"]
-    #    },
-#  ]
+  recordsets = [
+    {
+      name    = ""
+      type    = "NS"
+      ttl     = 60
+      records = [
+        "ns-cloud-c1.googledomains.com.",
+        "ns-cloud-c2.googledomains.com.",
+        "ns-cloud-c3.googledomains.com.",
+        "ns-cloud-c4.googledomains.com.",
+      ]
+    },
+    {
+      name    = "diag"
+      type    = "A"
+      ttl     = 60
+      records = ["34.118.4.44"]
+    },
+  ]
 }

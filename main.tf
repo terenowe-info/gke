@@ -348,41 +348,41 @@ module "l3t_io" {
 
   enable_logging = false
 
-#  recordsets = [
+  recordsets = [
+    {
+      name    = ""
+      type    = "NS"
+      ttl     = 60
+      records = [
+        "ns-cloud-c1.googledomains.com.",
+        "ns-cloud-c2.googledomains.com.",
+        "ns-cloud-c3.googledomains.com.",
+        "ns-cloud-c4.googledomains.com.",
+      ]
+    },
 #    {
-#      name    = ""
-#      type    = "NS"
-#      ttl     = 60
-#      records = [
-#        "ns-cloud-a1.googledomains.com.",
-#        "ns-cloud-a2.googledomains.com.",
-#        "ns-cloud-a3.googledomains.com.",
-#        "ns-cloud-a4.googledomains.com.",
-#      ]
-#    },
-#    {
-#      name    = "vpn.local"
-#      type    = "A"
-#      ttl     = 60
-#      records = [local.vm_openvpn_static_ip]
-#    },
-#    {
-#      name    = "vpn"
-#      type    = "A"
-#      ttl     = 60
-#      records = [module.openvpn_ip.addresses[0]]
-#    },
-#    {
-#      name    = "hostname"
-#      type    = "A"
-#      ttl     = 60
-#      records = ["34.118.4.44"]
-#    },
-#    {
-#      name    = "argocd.local"
-#      type    = "A"
-#      ttl     = 60
-#      records = ["10.150.150.150"]
-#    },
-#  ]
+    #      name    = "vpn.local"
+    #      type    = "A"
+    #      ttl     = 60
+    #      records = [local.vm_openvpn_static_ip]
+    #    },
+    #    {
+    #      name    = "vpn"
+    #      type    = "A"
+    #      ttl     = 60
+    #      records = [module.openvpn_ip.addresses[0]]
+    #    },
+    #    {
+    #      name    = "hostname"
+    #      type    = "A"
+    #      ttl     = 60
+    #      records = ["34.118.4.44"]
+    #    },
+    {
+      name    = "diag"
+      type    = "A"
+      ttl     = 60
+      records = ["34.118.4.44"]
+    },
+  ]
 }

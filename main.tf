@@ -333,3 +333,56 @@ module "sigma_prod_terenowe_dns_zone" {
     },
   ]
 }
+
+module "l3t_io" {
+  source  = "terraform-google-modules/cloud-dns/google"
+  version = "~> 5.0"
+
+  project_id                         = var.project_id
+  type                               = "public"
+  name                               = "l3t-io"
+  domain                             = "l3t.io."
+  private_visibility_config_networks = [
+    module.network.network_self_link
+  ]
+
+  enable_logging = false
+
+#  recordsets = [
+#    {
+#      name    = ""
+#      type    = "NS"
+#      ttl     = 60
+#      records = [
+#        "ns-cloud-a1.googledomains.com.",
+#        "ns-cloud-a2.googledomains.com.",
+#        "ns-cloud-a3.googledomains.com.",
+#        "ns-cloud-a4.googledomains.com.",
+#      ]
+#    },
+#    {
+#      name    = "vpn.local"
+#      type    = "A"
+#      ttl     = 60
+#      records = [local.vm_openvpn_static_ip]
+#    },
+#    {
+#      name    = "vpn"
+#      type    = "A"
+#      ttl     = 60
+#      records = [module.openvpn_ip.addresses[0]]
+#    },
+#    {
+#      name    = "hostname"
+#      type    = "A"
+#      ttl     = 60
+#      records = ["34.118.4.44"]
+#    },
+#    {
+#      name    = "argocd.local"
+#      type    = "A"
+#      ttl     = 60
+#      records = ["10.150.150.150"]
+#    },
+#  ]
+}

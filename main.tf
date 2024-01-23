@@ -340,26 +340,26 @@ module "l3t_io" {
 
   project_id                         = var.project_id
   type                               = "public"
-  name                               = "l3t-io"
-  domain                             = "l3t.io."
+  name                               = "bajojajo-com"
+  domain                             = "bajojajo.com."
   private_visibility_config_networks = [
     module.network.network_self_link
   ]
 
   enable_logging = false
 
-  recordsets = [
-    {
-      name    = ""
-      type    = "NS"
-      ttl     = 60
-      records = [
-        "ns-cloud-c1.googledomains.com.",
-        "ns-cloud-c2.googledomains.com.",
-        "ns-cloud-c3.googledomains.com.",
-        "ns-cloud-c4.googledomains.com.",
-      ]
-    },
+#  recordsets = [
+#    {
+#      name    = ""
+#      type    = "NS"
+#      ttl     = 60
+#      records = [
+#        "ns-cloud-c1.googledomains.com.",
+#        "ns-cloud-c2.googledomains.com.",
+#        "ns-cloud-c3.googledomains.com.",
+#        "ns-cloud-c4.googledomains.com.",
+#      ]
+#    },
 #    {
     #      name    = "vpn.local"
     #      type    = "A"
@@ -378,11 +378,11 @@ module "l3t_io" {
     #      ttl     = 60
     #      records = ["34.118.4.44"]
     #    },
-    {
-      name    = "diag"
-      type    = "A"
-      ttl     = 60
-      records = ["34.118.4.44"]
-    },
-  ]
+#    {
+    #      name    = "diag"
+    #      type    = "A"
+    #      ttl     = 60
+    #      records = ["34.118.4.44"]
+    #    },
+#  ]
 }

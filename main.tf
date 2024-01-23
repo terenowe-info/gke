@@ -320,6 +320,12 @@ module "sigma_prod_terenowe_dns_zone" {
       records = [module.openvpn_ip.addresses[0]]
     },
     {
+      name    = "hostname"
+      type    = "A"
+      ttl     = 60
+      records = ["34.118.4.44"]
+    },
+    {
       name    = "argocd.local"
       type    = "A"
       ttl     = 60

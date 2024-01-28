@@ -320,7 +320,7 @@ module "sigma_prod_terenowe_dns_zone" {
       records = [module.openvpn_ip.addresses[0]]
     },
     {
-      name    = "hostname"
+      name    = "headers"
       type    = "A"
       ttl     = 60
       records = ["34.118.4.44"]

@@ -361,7 +361,7 @@ module "bajojajo_com" {
       ]
     },
     {
-      name    = "diag"
+      name    = "headers"
       type    = "A"
       ttl     = 60
       records = ["34.118.4.44"]

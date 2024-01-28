@@ -320,17 +320,17 @@ module "sigma_prod_terenowe_dns_zone" {
       records = [module.openvpn_ip.addresses[0]]
     },
     {
-      name    = "headers"
+      name    = "net.local"
       type    = "A"
       ttl     = 60
-      records = ["34.118.4.44"]
+      records = ["10.150.150.150"]
     },
     {
       name    = "argocd.local"
       type    = "A"
       ttl     = 60
       records = ["10.150.150.150"]
-    },
+    }
   ]
 }
 
@@ -361,10 +361,10 @@ module "bajojajo_com" {
       ]
     },
     {
-      name    = "headers"
+      name    = "net"
       type    = "A"
       ttl     = 60
       records = ["34.118.4.44"]
-    },
+    }
   ]
 }

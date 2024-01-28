@@ -334,14 +334,14 @@ module "sigma_prod_terenowe_dns_zone" {
   ]
 }
 
-module "l3t_io" {
+module "bajojajo_com" {
   source  = "terraform-google-modules/cloud-dns/google"
   version = "~> 5.0"
 
   project_id                         = var.project_id
   type                               = "public"
-  name                               = "bajojajo-com"
-  domain                             = "bajojajo.com."
+  name                               = "sigma-bajojajo-com"
+  domain                             = "sigma.bajojajo.com."
   private_visibility_config_networks = [
     module.network.network_self_link
   ]
@@ -361,7 +361,7 @@ module "l3t_io" {
       ]
     },
     {
-      name    = ""
+      name    = "diag"
       type    = "A"
       ttl     = 60
       records = ["34.118.4.44"]

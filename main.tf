@@ -359,12 +359,6 @@ module "bajojajo_com" {
         "ns-cloud-c3.googledomains.com.",
         "ns-cloud-c4.googledomains.com.",
       ]
-    },
-    {
-      name    = "net"
-      type    = "A"
-      ttl     = 60
-      records = ["34.118.4.44"]
     }
   ]
 }

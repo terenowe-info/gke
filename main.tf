@@ -206,20 +206,25 @@ module "aaa_gke_cluster" {
     {
       cidr_block   = "${module.openvpn_ip.addresses[0]}/32"
       display_name = "OpenVPNExternalAddress"
-    },
+    }
   ]
 
-  #monitoring_service = "none"
-  monitoring_enable_managed_prometheus = true
-  monitoring_enabled_components        = [
-    "SYSTEM_COMPONENTS", "APISERVER", "SCHEDULER", "CONTROLLER_MANAGER",
-    "STORAGE", "HPA", "POD", "DAEMONSET", "DEPLOYMENT", "STATEFULSET"
-  ]
+  monitoring_enable_managed_prometheus = false
 
-  #logging_service    = "none"
-  logging_enabled_components = [
-    "SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "WORKLOADS"
-  ]
+  monitoring_service            = "none"
+  monitoring_enabled_components = []
+  #monitoring_service            = "monitoring.googleapis.com/kubernetes"
+  #monitoring_enabled_components        = [
+  #  "SYSTEM_COMPONENTS", "APISERVER", "SCHEDULER", "CONTROLLER_MANAGER",
+  #  "STORAGE", "HPA", "POD", "DAEMONSET", "DEPLOYMENT", "STATEFULSET"
+  #]
+
+  logging_service            = "none"
+  logging_enabled_components = []
+  #logging_service            = "logging.googleapis.com/kubernetes"
+  #logging_enabled_components = [
+  #  "SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "WORKLOADS"
+  #]
 
   node_pools = [
     {

@@ -60,6 +60,17 @@ module "network" {
           ports    = ["443", "943", "1194"]
         }
       ]
+    },
+    {
+      name        = "${local.base_name}-gke-cluster-to-bastion"
+      source_tags = [local.aaa_gke_cluster_tag, local.aaa_gke_cluster_pool_aaa_tag]
+      target_tag  = [local.vm_openvpn_tag]
+      allow       = [
+        {
+          protocol = "TCP"
+          ports    = ["22"]
+        }
+      ]
     }
   ]
 }
